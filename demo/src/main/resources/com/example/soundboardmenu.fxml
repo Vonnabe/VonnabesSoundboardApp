@@ -57,7 +57,7 @@
             <Button id="exitBtn" fx:id="exitBtn" layoutX="493.0" layoutY="434.0" mnemonicParsing="false" onAction="#cancelButton" prefHeight="43.0" prefWidth="135.0" text="Exit Application" />
             <ListView id="audioLview" fx:id="soundList" layoutX="23.0" layoutY="106.0" prefHeight="267.0" prefWidth="606.0" />
             <Slider id="volumeSlider" fx:id="volumeSlider" layoutX="119.0" layoutY="395.0" max="1.0" prefHeight="35.0" prefWidth="306.0" value="0.75" />
-            <ComboBox id="outputCbox" layoutX="122.0" layoutY="434.0" prefHeight="43.0" prefWidth="306.0" />
+            <ComboBox id="outputCbox" fx:id="outputAudioDevices" layoutX="122.0" layoutY="434.0" prefHeight="43.0" prefWidth="306.0" />
             <Label layoutX="28.0" layoutY="395.0" text="Volume">
                <font>
                   <Font size="24.0" />
