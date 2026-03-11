@@ -18,15 +18,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 
 
 
@@ -76,6 +83,72 @@ public class PrimaryController {
 @FXML
 public void initialize() {
     try {
+        soundList.setCellFactory(param -> new javafx.scene.control.ListCell<File>() {
+    @Override
+    protected void updateItem(File file, boolean empty) {
+        super.updateItem(file, empty);
+
+        if (empty || file == null) {
+            setGraphic(null);
+            setText(null);
+        } else {
+            javafx.scene.control.Label fileName = new javafx.scene.control.Label(file.getName());
+            fileName.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(fileName, Priority.ALWAYS);
+
+            Button rowPlayBtn = new Button("▶");
+            rowPlayBtn.setOnAction(e -> {
+                soundList.getSelectionModel().select(file);
+                handlePlay();
+            });
+
+            Button rowDeleteBtn = new Button("X");
+            rowDeleteBtn.setStyle("-fx-background-color: #ff4444; -fx-text-fill: white;");
+            rowDeleteBtn.setOnAction(e -> getListView().getItems().remove(file));
+
+            javafx.scene.control.Label moveHandle = new javafx.scene.control.Label("Ξ");
+            moveHandle.setStyle("-fx-cursor: hand; -fx-padding: 0 5 0 5; -fx-font-weight: bold;");
+
+            HBox hBox = new HBox(10, fileName, rowPlayBtn, rowDeleteBtn, moveHandle);
+            hBox.setAlignment(Pos.CENTER_LEFT);
+            setGraphic(hBox);
+            setText(null);
+
+            setOnDragDetected(event -> {
+                if (getItem() == null) return;
+                Dragboard db = startDragAndDrop(TransferMode.MOVE);
+                ClipboardContent content = new ClipboardContent();
+                content.putString(String.valueOf(getIndex())); 
+                db.setContent(content);
+                event.consume();
+            });
+
+            setOnDragOver(event -> {
+                if (event.getGestureSource() != this && event.getDragboard().hasString()) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
+                event.consume();
+            });
+
+            setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                if (db.hasString()) {
+                    int draggedIdx = Integer.parseInt(db.getString());
+                    int targetIdx = getIndex();
+
+                    File draggedItem = getListView().getItems().remove(draggedIdx);
+                    getListView().getItems().add(targetIdx, draggedItem);
+                    getListView().getSelectionModel().select(targetIdx);
+                    
+                    event.setDropCompleted(true);
+                } else {
+                    event.setDropCompleted(false);
+                }
+                event.consume();
+            });
+        }
+    }
+});
         loadAudioOutputDevices();
         volumeSlider.setMin(0.0);
         volumeSlider.setMax(1.0);
