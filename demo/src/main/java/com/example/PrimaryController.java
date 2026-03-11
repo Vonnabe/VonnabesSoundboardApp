@@ -2,6 +2,9 @@ package com.example;
 
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -61,6 +64,13 @@ public void initialize() {
         volumeSlider.setMin(0.0);
         volumeSlider.setMax(1.0);
         volumeSlider.setValue(0.75);
+        File folder = new File("sounds");
+        if (folder.exists() && folder.isDirectory()) {
+        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".wav"));
+        if (files != null) {
+            soundList.getItems().addAll(files);
+        }
+    }
         soundList.setOnMouseClicked(event -> {
         if (event.getClickCount() == 2) { 
             File selected = soundList.getSelectionModel().getSelectedItem();
@@ -129,16 +139,23 @@ private void loadAudioOutputDevices() {
     @FXML
 private void handleImport() {
     FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("Select Audio Track");
-    fileChooser.getExtensionFilters().addAll(
-        new FileChooser.ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac")
-    );
-    Stage stage = (Stage) importBtn.getScene().getWindow();
-    File file = fileChooser.showOpenDialog(stage);
+    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("WAV Files", "*.wav"));
+    File sourceFile = fileChooser.showOpenDialog(importBtn.getScene().getWindow());
+    if (sourceFile != null) {
+        try {
+            File directory = new File("sounds");
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            File destinationFile = new File(directory, sourceFile.getName());
+            Files.copy(sourceFile.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            soundList.getItems().add(destinationFile);
+            
+            System.out.println("Saved to app data: " + destinationFile.getAbsolutePath());
 
-    if (file != null) {
-        soundList.getItems().add(file);
-        System.out.println("Imported: " + file.getName());
+        } catch (IOException e) {
+            System.err.println("Failed to save file: " + e.getMessage());
+        }
     }
 }
 
