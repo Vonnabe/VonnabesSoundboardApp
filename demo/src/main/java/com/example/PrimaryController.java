@@ -56,6 +56,8 @@ public class PrimaryController {
     @FXML
     private Button deleteTrackBtn;
     @FXML
+    private Button refreshBtn;
+    @FXML
     private Button importBtn;
     @FXML
     private Slider volumeSlider;
@@ -267,5 +269,14 @@ private void handleStop() {
         stage.close();
     }
 
+    @FXML
+    private void refreshMenu(){
+        soundList.refresh();
+        outputAudioDevices.getItems().clear();
+        loadAudioOutputDevices();
+        audioClip.close();
+    }
     
 }
+
+
