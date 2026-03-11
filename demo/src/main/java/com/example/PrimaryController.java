@@ -47,6 +47,8 @@ public class PrimaryController {
     @FXML
     private Button stopBtn;
     @FXML
+    private Button deleteTrackBtn;
+    @FXML
     private Button importBtn;
     @FXML
     private Slider volumeSlider;
@@ -55,6 +57,20 @@ public class PrimaryController {
     @FXML 
     private ComboBox<String> outputAudioDevices;
     private Clip audioClip;
+
+    @FXML
+    private void deleteTrackFromList(){
+        File selected = soundList.getSelectionModel().getSelectedItem();
+        if(selected != null){
+            soundList.getItems().remove(selected);
+            if(selected.exists()){
+                selected.delete();
+                System.out.println("Deleted: " + selected.getName());
+            } else {
+                System.out.println("File not found for deletion: " + selected.getAbsolutePath());
+            }
+        }
+    }
     
 
 @FXML
