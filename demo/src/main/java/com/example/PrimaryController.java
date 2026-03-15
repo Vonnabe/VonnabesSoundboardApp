@@ -84,6 +84,20 @@ public class PrimaryController {
 
 @FXML
 public void initialize() {
+
+    volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+        if (audioClip != null && audioClip.isOpen()) {
+            try {
+                FloatControl gainControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
+                float volume = newValue.floatValue();
+                if (volume < 0.0001f) volume = 0.0001f; 
+                float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
+                gainControl.setValue(dB);
+            } catch (IllegalArgumentException e) {
+                System.err.println("Volume control not supported on this output.");
+            }
+        }
+    });
     try {
         soundList.setCellFactory(param -> new javafx.scene.control.ListCell<File>() {
     @Override
@@ -151,6 +165,7 @@ public void initialize() {
         }
     }
 });
+
         loadAudioOutputDevices();
         volumeSlider.setMin(0.0);
         volumeSlider.setMax(1.0);
@@ -217,8 +232,10 @@ private void loadAudioOutputDevices() {
         
         for (Mixer.Info info : mixerInfos) {
             Mixer mixer = AudioSystem.getMixer(info);
-            if (mixer.getSourceLineInfo().length > 0) {
+            if(!info.getName().toLowerCase().contains("microphone") && !info.getName().toLowerCase().contains("input")) {
+                if (mixer.getSourceLineInfo().length > 0) {
                 deviceNames.add(info.getName());
+                }
             }
         }
         outputAudioDevices.setItems(deviceNames);
