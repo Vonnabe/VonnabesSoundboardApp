@@ -131,7 +131,6 @@ public void initialize() {
             hotKeyButton.setOnAction(e -> {
                 hkManager.startListening(file.getName());
                 System.out.println("Hotkey assignment for: " + file.getName());
-                
             });
 
             HBox hBox = new HBox(10, fileName, rowPlayBtn, rowDeleteBtn, moveHandle, hotKeyButton);
