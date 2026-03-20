@@ -300,6 +300,8 @@ private void handleStop() {
         outputAudioDevices.getItems().clear();
         loadAudioOutputDevices();
         audioClip.close();
+
+        //end for now
     }
     
 }
