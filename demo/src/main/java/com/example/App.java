@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
@@ -19,6 +20,8 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("soundboardmenu"), 640, 480);
         stage.setScene(scene);
+        stage.setTitle("Vonnabe's Soundboard");
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/v_logo.png")));
         stage.show();
     }
 

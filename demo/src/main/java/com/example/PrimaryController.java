@@ -35,9 +35,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 
-
-
-
 public class PrimaryController {
 
     @FXML
@@ -63,6 +60,9 @@ public class PrimaryController {
     private Slider volumeSlider;
     @FXML
     ListView<File> soundList;
+
+    HotKeyManager hkManager = new HotKeyManager();
+
     @FXML 
     private ComboBox<String> outputAudioDevices;
     private Clip audioClip;
@@ -84,6 +84,8 @@ public class PrimaryController {
 
 @FXML
 public void initialize() {
+
+    hkManager.init();
 
     volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
         if (audioClip != null && audioClip.isOpen()) {
@@ -125,7 +127,13 @@ public void initialize() {
             javafx.scene.control.Label moveHandle = new javafx.scene.control.Label("Ξ");
             moveHandle.setStyle("-fx-cursor: hand; -fx-padding: 0 5 0 5; -fx-font-weight: bold;");
 
-            HBox hBox = new HBox(10, fileName, rowPlayBtn, rowDeleteBtn, moveHandle);
+            Button hotKeyButton = new Button("Set Hotkey");
+            hotKeyButton.setOnAction(e -> {
+                hkManager.startListening(file.getName());
+                System.out.println("Hotkey assignment for: " + file.getName());
+            });
+
+            HBox hBox = new HBox(10, fileName, rowPlayBtn, rowDeleteBtn, moveHandle, hotKeyButton);
             hBox.setAlignment(Pos.CENTER_LEFT);
             setGraphic(hBox);
             setText(null);
