@@ -85,7 +85,7 @@ public class PrimaryController {
 @FXML
 public void initialize() {
 
-    hkManager.init();
+    
 
     volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
         if (audioClip != null && audioClip.isOpen()) {
@@ -100,6 +100,9 @@ public void initialize() {
             }
         }
     });
+
+    hkManager.init();
+    //hkManager.setVolumeSlider(volumeSlider);
     try {
         soundList.setCellFactory(param -> new javafx.scene.control.ListCell<File>() {
     @Override
@@ -123,6 +126,7 @@ public void initialize() {
             Button rowDeleteBtn = new Button("X");
             rowDeleteBtn.setStyle("-fx-background-color: #ff4444; -fx-text-fill: white;");
             rowDeleteBtn.setOnAction(e -> getListView().getItems().remove(file));
+            
 
             javafx.scene.control.Label moveHandle = new javafx.scene.control.Label("Ξ");
             moveHandle.setStyle("-fx-cursor: hand; -fx-padding: 0 5 0 5; -fx-font-weight: bold;");

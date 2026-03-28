@@ -8,6 +8,7 @@ import java.util.HashMap;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
@@ -24,6 +25,12 @@ public class HotKeyManager implements NativeKeyListener {
     private boolean isAssigning = false;
     private String currentSoundFile = "";
     private PlaySound engine = new PlaySound(); 
+
+    //private Slider volumeSlider;
+
+//public void setVolumeSlider(Slider slider) {
+    //this.volumeSlider = slider;
+//}
 
     public void init() {
         try {
@@ -58,8 +65,9 @@ public class HotKeyManager implements NativeKeyListener {
 
             if (hotkeyMap.containsKey(keyCode)) {
                 String soundToPlay = hotkeyMap.get(keyCode);
+
                 System.out.println("HOTKEY TRIGGERED: Playing " + soundToPlay);
-                engine.play(soundToPlay);
+                engine.play(soundToPlay, 0.5); // Play with default volume (0.5)
             }
         }
     }
@@ -69,32 +77,28 @@ public class HotKeyManager implements NativeKeyListener {
 }
 
 class PlaySound {
-    public void play(String fileName) {
-        try {
-            if (!fileName.toLowerCase().endsWith(".wav")) {
-                fileName += ".wav";
-            }
+public void play(String fileName, double volume) { // Add volume parameter (0.0 to 1.0)
+    try {
+        File file = new File("sounds/" + fileName);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+        Clip clip = AudioSystem.getClip();
+        clip.open(stream);
 
-            File file = new File("sounds/" + fileName);
+        // VOLUME LOGIC
+        if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
             
-            if (!file.exists()) {
-                System.err.println("FILE MISSING: " + file.getAbsolutePath());
-                return;
-            }
-
-            AudioInputStream stream = AudioSystem.getAudioInputStream(file);
-            Clip clip = AudioSystem.getClip();
-            clip.open(stream);
-            clip.start();
-            
-            clip.addLineListener(event -> {
-                if (event.getType() == LineEvent.Type.STOP) {
-                    clip.close();
-                }
-            });
-
-        } catch (Exception e) {
-            System.err.println("Playback Error: " + e.getMessage());
+            // Convert 0.0-1.0 slider value to Decibels (Java Sound uses dB)
+            float dB = (float) (Math.log(volume != 0 ? volume : 0.0001) / Math.log(10.0) * 20.0);
+            gainControl.setValue(dB);
         }
+
+        clip.start();
+        // Close clip when done
+        clip.addLineListener(e -> { if (e.getType() == LineEvent.Type.STOP) clip.close(); });
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
 }
